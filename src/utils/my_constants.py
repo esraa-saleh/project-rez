@@ -1,0 +1,1 @@
+# put any constants here. Write their variable name in all caps so that its easy to tell.
