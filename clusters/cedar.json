@@ -1,0 +1,7 @@
+{
+    "account": "",
+    "time": "",
+    "nodes": 2,
+    "memPerCpu": "8G",
+    "tasksPerNode": 2
+}
