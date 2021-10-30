@@ -1,0 +1,11 @@
+{
+    "account": "",
+    "time": "02:59:00",
+    "nodes": 2,
+    "memPerCpu": "4G",
+    "tasksPerNode": 2,
+    "num_gpus": 2,
+    "gpu_type": "",
+    "cc_nodes": 1
+
+}
