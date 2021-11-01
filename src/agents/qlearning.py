@@ -39,6 +39,7 @@ class DQNAgent():
         self.EPS_DECAY = EPS_DECAY
         self.TARGET_UPDATE = TARGET_UPDATE
         self.STEPS_DONE = 0
+        self.optimizer = optim.RMSprop(self.policy_net.parameters())
         self.m = m
         self.policy_net = DQN(self.m)
         self.target_net = DQN(self.m)
@@ -53,14 +54,10 @@ class DQNAgent():
         return self.total_reward
 
     def select_action(self, state):
-        steps_done = 0
-        eps_start = 0.9
-        eps_end = 0.05
-        eps_decay = 200
         sample = random.random()
         eps_threshold = self.EPS_END + (self.EPS_START - self.EPS_END) * \
                         math.exp(-1. * self.STEPS_DONE / self.EPS_DECAY)
-        steps_done += 1
+        self.STEPS_DONE += 1
         if sample > eps_threshold:
             with torch.no_grad():
                 # t.max(1) will return largest value for column of each row.
@@ -72,7 +69,6 @@ class DQNAgent():
 
     def optimize_model(self, device="cpu"):
 
-        optimizer = optim.RMSprop(self.policy_net.parameter())
         if len(self.memory) < self.BATCH_SIZE:
             return
         transitions = self.memory.sample(self.BATCH_SIZE)
@@ -100,11 +96,11 @@ class DQNAgent():
         loss = F.smooth_l1_loss(state_action_values, expected_state_action_values.unsqueeze(1))
 
         # Optimize the model
-        optimizer.zero_grad()
+        self.optimizer.zero_grad()
         loss.backward()
         for param in self.policy_net.parameters():
             param.grad.data.clamp_(-1, 1)
-        optimizer.step()
+        self.optimizer.step()
 
     #RL Glue methods:
     def agent_start(self, state):
