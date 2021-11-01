@@ -42,6 +42,8 @@ class DQNAgent():
         self.m = m
         self.policy_net = DQN(self.m)
         self.target_net = DQN(self.m)
+        self.target_net.load_state_dict(self.policy_net.parameters())
+        self.target_net.eval()
 
     #getters for ReplayMemory and total reward
     def agent_get_memory(self):
