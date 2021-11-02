@@ -1,10 +1,10 @@
-from src.environments.env import BaseEnvironment
+#from src.environments.env import BaseEnvironment
 from copy import deepcopy
 # from mypy_extensions import TypedDict
 
 
 
-class ContinuousChain(BaseEnvironment):
+class ContinuousChain():
 
 
     def __init__(self, env_info={}):
