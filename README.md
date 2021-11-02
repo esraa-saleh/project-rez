@@ -2,7 +2,7 @@
 
 # Setup Instructions
 
-Make sure you're using Python 3.9 (that's Esra'a initially tested with).
+Make sure you're using Python 3.9 (that's what Esra'a initially tested with).
 
 Create a virtual environment "rez-env" with the command :
 ```
