@@ -24,8 +24,8 @@ class ContinuousChain:
         self.rng = np.random.RandomState(seed)
         
 
-        #super().__init__()
-        pass
+        
+       
 
     def env_start(self):
         """The first method called when the episode starts, called before the
@@ -34,7 +34,10 @@ class ContinuousChain:
         Returns:
             The first state from the environment.
         """
-        pass
+        self.cnt = 0
+        self.state = self.rng.random.uniform(0.0, 1.0, (1,))
+        return self.state
+        
 
 
     def env_step(self, action):
@@ -47,13 +50,27 @@ class ContinuousChain:
             (float, state, Boolean): a tuple of the reward, state,
                 and boolean indicating if it's terminal.
         """
+        self.cnt += 1
+        if action == 1:
+            next__state = min(self.state + np.random.uniform(0.0, 0.25, (1,)), np.array([1.0])) 
+            reward =  float(next__state//self.sparsity - self.state//self.sparsity)
+            self.state = next__state
+            
+        elif action == 0:
+            self.state = max(self.state - np.random.uniform(0.0, 0.25, (1,)), np.array([0.0]))
+            reward = 0
+        
+        if self.state == np.array([1.0]):
+          done = np.array([True])
+        else:
+          done = np.array([self.cnt == self.length])
+        
+        if done:
+            self.cnt = 0
+        
+        return reward, self.state, done
 
-        pass
+        
 
 
-    def env_cleanup(self):
-        """Cleanup done after the environment ends"""
-        # usually after the end of an episode the agent location is reset
-        # self.agent_loc = self.start_loc
-        pass
-
+    
