@@ -35,7 +35,7 @@ class ContinuousChain:
             The first state from the environment.
         """
         self.cnt = 0
-        self.state = self.rng.random.uniform(0.0, 1.0, (1,))
+        self.state = self.rng.uniform(0.0, 1.0, (1,))
         return self.state
         
 
