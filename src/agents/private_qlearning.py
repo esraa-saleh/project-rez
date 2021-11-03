@@ -11,19 +11,19 @@ from src.utils.ReplayMemory import ReplayMemory
 from src.utils.ReplayMemory import Transition
 
 
-#NOISEBUFFER && NOISEBUFFER HELPER METHODS
-def kk(x, y):
-    return np.exp(-abs(x-y))
-
-def rho(x, y):
-    return np.exp(abs(x-y)) - np.exp(-abs(x-y))
-
-class noisebuffer:
+#NOISEBUFFER
+class NoiseBuffer:
     def __init__(self, m, sigma):
         self.buffer = []
         self.base = {}
         self.m = m
         self.sigma = sigma
+
+    def kk(self, x, y):
+        return np.exp(-abs(x - y))
+
+    def rho(self, x, y):
+        return np.exp(abs(x - y)) - np.exp(-abs(x - y))
 
     def sample(self, s):
         buffer = self.buffer
@@ -48,17 +48,17 @@ class noisebuffer:
                     return (buffer[idx+1][1], buffer[idx+1][2])
             
         if s < buffer[0][0]:
-            mean0 = kk(s, buffer[0][0]) * buffer[0][1]
-            mean1 = kk(s, buffer[0][0]) * buffer[0][2]
-            var0 = 1 - kk(s, buffer[0][0]) ** 2
-            var1 = 1 - kk(s, buffer[0][0]) ** 2
+            mean0 = self.kk(s, buffer[0][0]) * buffer[0][1]
+            mean1 = self.kk(s, buffer[0][0]) * buffer[0][2]
+            var0 = 1 - self.kk(s, buffer[0][0]) ** 2
+            var1 = 1 - self.kk(s, buffer[0][0]) ** 2
             v0 = np.random.normal(mean0, np.sqrt(var0) * sigma)
             v1 = np.random.normal(mean1, np.sqrt(var1) * sigma)
             self.buffer.insert(0, (s, v0, v1))
         elif s > buffer[-1][0]:
-            mean0 = kk(s, buffer[-1][0]) * buffer[0][1]
-            mean1 = kk(s, buffer[-1][0]) * buffer[0][2]
-            var0 = 1 - kk(s, buffer[-1][0]) ** 2
+            mean0 = self.kk(s, buffer[-1][0]) * buffer[0][1]
+            mean1 = self.kk(s, buffer[-1][0]) * buffer[0][2]
+            var0 = 1 - self.kk(s, buffer[-1][0]) ** 2
             var1 = var0
             v0 = np.random.normal(mean0, np.sqrt(var0) * sigma)
             v1 = np.random.normal(mean1, np.sqrt(var1) * sigma)
@@ -67,9 +67,9 @@ class noisebuffer:
             idx = bisect.bisect(buffer, (s, None, None))
             sminus, eminus0, eminus1 = buffer[idx-1]
             splus, eplus0, eplus1 = buffer[idx]
-            mean0 = (rho(splus, s)*eminus0 + rho(sminus, s)*eplus0) / rho(sminus, splus)
-            mean1 = (rho(splus, s)*eminus1 + rho(sminus, s)*eplus1) / rho(sminus, splus)
-            var0 = 1 - (kk(sminus, s)*rho(splus, s) + kk(splus, s)*rho(sminus, s)) / rho(sminus, splus)
+            mean0 = (self.rho(splus, s)*eminus0 + self.rho(sminus, s)*eplus0) / self.rho(sminus, splus)
+            mean1 = (self.rho(splus, s)*eminus1 + self.rho(sminus, s)*eplus1) / self.rho(sminus, splus)
+            var0 = 1 - (self.kk(sminus, s)*self.rho(splus, s) + self.kk(splus, s)*self.rho(sminus, s)) / self.rho(sminus, splus)
             var1 = var0
             v0 = np.random.normal(mean0, np.sqrt(var0) * sigma)
             v1 = np.random.normal(mean1, np.sqrt(var1) * sigma)
@@ -87,9 +87,7 @@ class DQN(nn.Module):
         self.linear2 = nn.Linear(hidden, hidden)
         self.head = nn.Linear(hidden, m)
         self.sigma = sigma
-        self.memory = None
-        self.total_reward = 0
-        self.nb = noisebuffer(m, sigma)
+        self.nb = NoiseBuffer(m, sigma)
 
     def forward(self, s):
         x = F.relu(self.linear1(s))
@@ -188,7 +186,6 @@ class DQNAgent():
         self.action = action
         return action
 
-    #added replaymemory as a parameter here since Nidhi's update loop expects the memory as a global variable
     def agent_step(self, next_state, reward):
 
         #manually putting in device='cpu' here to avoid having to pass it in

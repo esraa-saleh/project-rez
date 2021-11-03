@@ -15,8 +15,6 @@ class DQN(nn.Module):
         self.linear1 = nn.Linear(1, hidden)
         self.linear2 = nn.Linear(hidden, hidden)
         self.head = nn.Linear(hidden, m)
-        self.memory = None
-        self.total_reward = 0
 
     def forward(self, s):
         x = F.relu(self.linear1(s))
@@ -110,7 +108,6 @@ class DQNAgent():
         self.action = action
         return action
 
-    #added replaymemory as a parameter here since Nidhi's update loop expects the memory as a global variable
     def agent_step(self, next_state, reward):
 
         #manually putting in device='cpu' here to avoid having to pass it in
