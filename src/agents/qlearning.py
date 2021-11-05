@@ -37,12 +37,12 @@ class DQNAgent():
         self.EPS_DECAY = EPS_DECAY
         self.TARGET_UPDATE = TARGET_UPDATE
         self.STEPS_DONE = 0
-        self.optimizer = optim.RMSprop(self.policy_net.parameters())
         self.m = m
         self.policy_net = DQN(self.m)
         self.target_net = DQN(self.m)
-        self.target_net.load_state_dict(self.policy_net.parameters())
+        #self.target_net.load_state_dict(self.policy_net.parameters())
         self.target_net.eval()
+        self.optimizer = optim.RMSprop(self.policy_net.parameters())
 
     #getters for ReplayMemory and total reward
     def agent_get_memory(self):
