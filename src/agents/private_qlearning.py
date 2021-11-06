@@ -108,7 +108,7 @@ class PrivateDQNAgent():
         # self.total_reward = None
         self.state = None
         self.action = None
-        self.episode = 1
+        self.episode = 0
         self.BATCH_SIZE = BATCH_SIZE
         self.GAMMA = GAMMA
         self.EPS_START = EPS_START
@@ -187,7 +187,7 @@ class PrivateDQNAgent():
     def agent_start(self, state):
         # self.total_reward = 0
         self.state = torch.Tensor(state).unsqueeze(0)
-        action = self.select_action(state)
+        action = self.select_action(self.state)
         self.action = action
         return action
 
