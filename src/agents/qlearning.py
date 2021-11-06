@@ -4,9 +4,13 @@ import torch.nn.functional as F
 from torch import optim
 import random
 import math
+import numpy as np
 
 from src.utils.ReplayMemory import ReplayMemory
 from src.utils.ReplayMemory import Transition
+
+#TODO: have seeding for neural net init to make results reproducable
+
 
 #NETWORK
 class DQN(nn.Module):
@@ -23,13 +27,13 @@ class DQN(nn.Module):
         return x
 
 #AGENT
-class DQNAgent():
-    def __init__(self, episode, m, EPS_START=0.9, EPS_END=0.05, EPS_DECAY=200, TARGET_UPDATE=10, BATCH_SIZE=128, GAMMA=0.99):
+class DQNAgent:
+    def __init__(self, seed_bundle, m, EPS_START=0.9, EPS_END=0.05, EPS_DECAY=200, TARGET_UPDATE=10, BATCH_SIZE=128, GAMMA=0.99):
         self.memory = ReplayMemory(10000)
-        self.total_reward = None
+        # self.total_reward = None
         self.state = None
         self.action = None
-        self.episode = episode
+        self.episode = 1
         self.BATCH_SIZE = BATCH_SIZE
         self.GAMMA = GAMMA
         self.EPS_START = EPS_START
@@ -43,16 +47,19 @@ class DQNAgent():
         #self.target_net.load_state_dict(self.policy_net.parameters())
         self.target_net.eval()
         self.optimizer = optim.RMSprop(self.policy_net.parameters())
+        self.action_rng = np.random.RandomState(seed_bundle.action_seed)
 
     #getters for ReplayMemory and total reward
     def agent_get_memory(self):
         return self.memory
 
-    def agent_get_total_reward(self):
-        return self.total_reward
+    # def agent_get_total_reward(self):
+    #     return self.total_reward
 
     def select_action(self, state):
-        sample = random.random()
+        # sample = random.random()
+        # instead of python's random we'll use numpy's to be able to have a generator with its own seed
+        sample = self.action_rng.uniform()
         eps_threshold = self.EPS_END + (self.EPS_START - self.EPS_END) * \
                         math.exp(-1. * self.STEPS_DONE / self.EPS_DECAY)
         self.STEPS_DONE += 1
@@ -63,7 +70,7 @@ class DQNAgent():
                 # found, so we pick action with the larger expected reward.
                 return self.policy_net(state).max(1)[1].view(1, 1)
         else:
-            return torch.tensor([[random.randrange(self.m)]], dtype=torch.long)
+            return torch.tensor([[self.action_rng.randint(self.m)]], dtype=torch.long)
 
     def optimize_model(self, device="cpu"):
 
@@ -102,13 +109,13 @@ class DQNAgent():
 
     #RL Glue methods:
     def agent_start(self, state):
-        self.total_reward = 0
+        # self.total_reward = 0
         self.state = torch.Tensor(state).unsqueeze(0)
         action = self.select_action(state)
         self.action = action
         return action
 
-    def agent_step(self, next_state, reward):
+    def agent_step(self, reward, next_state):
 
         #manually putting in device='cpu' here to avoid having to pass it in
         reward = torch.tensor([reward], device='cpu')
@@ -118,7 +125,7 @@ class DQNAgent():
         memory.push(self.state, self.action, reform_next_state, reward)
 
         # recieve reward
-        self.total_reward += float(reward.squeeze(0).data)
+        # self.total_reward += float(reward.squeeze(0).data)
 
         #move to next state
         self.state = reform_next_state
@@ -137,8 +144,9 @@ class DQNAgent():
             self.target_net.load_state_dict(self.policy_net.state_dict())
 
         self.memory.push(self.state, self.action, None, reward)
-        reward = torch.tensor([reward], device='cpu')
-        self.total_reward += float(reward.squeeze(0).data)
+        # reward = torch.tensor([reward], device='cpu')
+        # self.total_reward += float(reward.squeeze(0).data)
         self.state = None
 
         self.optimize_model()
+        self.episode += 1

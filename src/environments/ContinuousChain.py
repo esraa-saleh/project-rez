@@ -22,10 +22,11 @@ class ContinuousChain:
         self.length = max_episode_len
         self.sparsity = sparsity
         self.rng = np.random.RandomState(seed)
-        
+        self.num_actions = 2
 
-        
-       
+    def get_num_actions(self):
+        return self.num_actions
+
 
     def env_start(self):
         """The first method called when the episode starts, called before the
@@ -53,12 +54,14 @@ class ContinuousChain:
         self.cnt += 1
         if action == 1:
             next__state = min(self.state + self.rng.uniform(0.0, 0.25, (1,)), np.array([1.0])) 
-            reward =  float(next__state//self.sparsity - self.state//self.sparsity)
+            reward = float(next__state//self.sparsity - self.state//self.sparsity)
             self.state = next__state
             
         elif action == 0:
             self.state = max(self.state - self.rng.uniform(0.0, 0.25, (1,)), np.array([0.0]))
             reward = 0
+        else:
+            raise NotImplementedError
         
         if self.state == np.array([1.0]):
           done = np.array([True])
