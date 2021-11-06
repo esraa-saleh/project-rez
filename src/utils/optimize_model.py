@@ -3,7 +3,7 @@ import torch.nn.functional as F
 from src.utils.ReplayMemory import ReplayMemory
 from src.utils.ReplayMemory import Transition
 
-def optimize_model(self, memory, optimizer, policy_net, target_net, GAMMA, BATCH_SIZE, device="cpu"):
+def optimize_model(memory, optimizer, policy_net, target_net, GAMMA, BATCH_SIZE, device="cpu"):
 
     if len(memory) < BATCH_SIZE:
         return

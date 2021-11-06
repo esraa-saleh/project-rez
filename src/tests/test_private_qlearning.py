@@ -12,8 +12,8 @@ env = hitorstandcontinuous()
 m = env.action_space.n
 episode = 10 #arbitrary
 
-SH = SeedsHolder(10)
-bundle = SH.agent_seed_bundle_class
+seed_bundle = namedtuple('SeedBundle', 'action_seed parameter_init_seed')
+bundle = seed_bundle(1234, 5678)
 
 #AGENT ATTRIBUTE TESTING BLOCK
 
@@ -51,7 +51,6 @@ def test_agent_start():
     assert action is not None
     assert agent.action is not None
     assert agent.state is not None
-    assert agent.total_reward == 0
 
 def test_agent_step():
     agent = PrivateDQNAgent(bundle, episode, m)
@@ -62,8 +61,7 @@ def test_agent_step():
     assert next_action is not None
     assert agent.state is not None
     assert agent.action is not None
-    assert agent.total_reward is not None
-    assert agent.total_reward > 0
+
 
 def test_agent_end():
     agent = PrivateDQNAgent(bundle, episode, m)
@@ -72,7 +70,6 @@ def test_agent_end():
     reward = 10 #arbitrary
     agent.agent_end(reward)
     assert agent.state is None
-    assert agent.total_reward > 0
 
 def test_noisebuffer_reset():
     agent = PrivateDQNAgent(bundle, episode, m)

@@ -139,7 +139,7 @@ class DQNAgent:
                                               self.BATCH_SIZE)
 
         # copy optimized policy net to self.policy_net
-        self.policy_net.load_state_dict(optimized_policy_net.state_dict())
+        self.policy_net = optimized_policy_net
         # select next action here
         next_action, step_count = select_action(reform_next_state, self.policy_net, self.m, self.action_rng,
                                                 self.EPS_START, self.EPS_END, self.EPS_DECAY, self.STEPS_DONE)
@@ -160,5 +160,5 @@ class DQNAgent:
         optimized_policy_net = optimize_model(self.memory, self.optimizer, self.policy_net, self.target_net, self.GAMMA,
                                               self.BATCH_SIZE)
         # copy optimized policy net to self.policy_net
-        self.policy_net.load_state_dict(optimized_policy_net.state_dict())
+        self.policy_net = optimized_policy_net
         self.episode += 1

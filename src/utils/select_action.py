@@ -1,7 +1,7 @@
 import torch
 import math
 
-def select_action(self, state, policy_net, m, action_rng, EPS_START, EPS_END, EPS_DECAY, STEPS_DONE):
+def select_action(state, policy_net, m, action_rng, EPS_START, EPS_END, EPS_DECAY, STEPS_DONE):
     # sample = random.random()
     # instead of python's random we'll use numpy's to be able to have a generator with its own seed
     sample = action_rng.uniform()
