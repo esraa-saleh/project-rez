@@ -6,7 +6,7 @@ from src.utils.ReplayMemory import Transition
 def optimize_model(memory, optimizer, policy_net, target_net, GAMMA, BATCH_SIZE, device="cpu"):
 
     if len(memory) < BATCH_SIZE:
-        return
+        return policy_net
     transitions = memory.sample(BATCH_SIZE)
 
     batch = Transition(*zip(*transitions))
