@@ -15,8 +15,8 @@ class SeedsHolder:
                 and len(self.env_reaction_seeds) < max_required_seeds):
             raise NotImplementedError
 
-        self.agent_seed_bundle_class = namedtuple('SeedBundle', 'action_seed parameter_init_seed')
-        self.env_seed_bundle_class = namedtuple('SeedBundle', 'env_reaction_seed')
+        self.agent_seed_bundle_class = namedtuple('AgentSeedBundle', 'action_seed parameter_init_seed')
+        self.env_seed_bundle_class = namedtuple('EnvSeedBundle', 'env_reaction_seed')
 
 
     def get_seed_for_parallel_run(self, run):
