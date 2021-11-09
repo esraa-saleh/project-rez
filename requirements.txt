@@ -4,3 +4,5 @@ git+https://github.com/andnp/PyFixedReps@0.1#egg=PyFixedReps
 
 matplotlib>=2.2.3
 pylint>=2.0.0
+gym==0.21.0
+torch==1.10.0
