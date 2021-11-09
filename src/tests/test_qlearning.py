@@ -3,14 +3,20 @@ import torch
 import random
 from src.environments.hitorstandcontinuous import hitorstandcontinuous
 from src.agents.qlearning import DQNAgent
+from src.utils.SeedsHolder import SeedsHolder
+from collections import namedtuple
+
 env = hitorstandcontinuous()
 m = env.action_space.n
 episode = 10 #arbitrary
 
+seed_bundle = namedtuple('SeedBundle', 'action_seed parameter_init_seed')
+bundle = seed_bundle(1234, 5678)
+
 #AGENT ATTRIBUTE TESTING BLOCK
 
 def test_inner_DQN():
-    agent = DQNAgent(episode, m)
+    agent = DQNAgent(bundle, episode, m)
     policy_net = agent.policy_net
     target_net = agent.target_net
     assert policy_net is not None
@@ -18,7 +24,7 @@ def test_inner_DQN():
 
 
 def test_agent_attributes():
-    agent = DQNAgent(episode,m)
+    agent = DQNAgent(bundle, episode,m)
     assert agent.GAMMA is not None
     assert agent.BATCH_SIZE is not None
     assert agent.EPS_START is not None
@@ -33,16 +39,15 @@ def test_agent_attributes():
 
 #AGENT METHOD TESTING BLOCK
 def test_agent_start():
-    agent = DQNAgent(episode,m)
+    agent = DQNAgent(bundle, episode,m)
     state = torch.Tensor(env.reset()).unsqueeze(0)
     action = agent.agent_start(state)
     assert action is not None
     assert agent.action is not None
     assert agent.state is not None
-    assert agent.total_reward == 0
 
 def test_agent_step():
-    agent = DQNAgent(episode,m)
+    agent = DQNAgent(bundle, episode,m)
     state = torch.Tensor(env.reset()).unsqueeze(0)
     reward = 10 #arbitrary reward
     action = agent.agent_start(state)
@@ -50,20 +55,19 @@ def test_agent_step():
     assert next_action is not None
     assert agent.state is not None
     assert agent.action is not None
-    assert agent.total_reward is not None
-    assert agent.total_reward > 0
+
 
 def test_agent_end():
-    agent = DQNAgent(episode,m)
+    agent = DQNAgent(bundle, episode,m)
     state = torch.Tensor(env.reset()).unsqueeze(0)
     action = agent.agent_start(state)
     reward = 10 #arbitrary
     agent.agent_end(reward)
     assert agent.state is None
-    assert agent.total_reward > 0
+
 
 def test_replay_push():
-    agent = DQNAgent(episode,m)
+    agent = DQNAgent(bundle, episode,m)
     state = torch.Tensor(env.reset()).unsqueeze(0)
     action = agent.agent_start(state)
     reward = 10 #arbitrary

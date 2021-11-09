@@ -8,6 +8,8 @@ import numpy as np
 
 from src.utils.ReplayMemory import ReplayMemory
 from src.utils.ReplayMemory import Transition
+from src.utils.select_action import select_action
+from src.utils.optimize_model import optimize_model
 
 #TODO: have seeding for neural net init to make results reproducable
 
@@ -55,7 +57,7 @@ class DQNAgent:
 
     # def agent_get_total_reward(self):
     #     return self.total_reward
-
+    '''
     def select_action(self, state):
         # sample = random.random()
         # instead of python's random we'll use numpy's to be able to have a generator with its own seed
@@ -71,7 +73,8 @@ class DQNAgent:
                 return self.policy_net(state).max(1)[1].view(1, 1)
         else:
             return torch.tensor([[self.action_rng.randint(self.m)]], dtype=torch.long)
-
+    '''
+    '''
     def optimize_model(self, device="cpu"):
 
         if len(self.memory) < self.BATCH_SIZE:
@@ -106,36 +109,42 @@ class DQNAgent:
         for param in self.policy_net.parameters():
             param.grad.data.clamp_(-1, 1)
         self.optimizer.step()
+    '''
 
-    #RL Glue methods:
+    # RL Glue methods:
     def agent_start(self, state):
         # self.total_reward = 0
         self.state = torch.Tensor(state).unsqueeze(0)
-        action = self.select_action(self.state)
+        action, step_count = select_action(self.state, self.policy_net, self.m, self.action_rng, self.EPS_START,
+                                           self.EPS_END, self.EPS_DECAY, self.STEPS_DONE)
         self.action = action
+        self.STEPS_DONE = step_count
         return action
 
     def agent_step(self, reward, next_state):
-
-        #manually putting in device='cpu' here to avoid having to pass it in
+        # manually putting in device='cpu' here to avoid having to pass it in
         reward = torch.tensor([reward], device='cpu')
         reform_next_state = torch.Tensor(next_state).unsqueeze(0)
-        #store transition in memory
-        memory = self.agent_get_memory()
-        memory.push(self.state, self.action, reform_next_state, reward)
+        # store transition in memory
+        self.memory.push(self.state, self.action, reform_next_state, reward)
 
         # recieve reward
         # self.total_reward += float(reward.squeeze(0).data)
 
-        #move to next state
+        # move to next state
         self.state = reform_next_state
 
-        #optimize model
-        self.optimize_model()
+        # optimize model
+        optimized_policy_net = optimize_model(self.memory, self.optimizer, self.policy_net, self.target_net, self.GAMMA,
+                                              self.BATCH_SIZE)
 
-        #select next action here
-        next_action = self.select_action(reform_next_state)
+        # copy optimized policy net to self.policy_net
+        self.policy_net = optimized_policy_net
+        # select next action here
+        next_action, step_count = select_action(reform_next_state, self.policy_net, self.m, self.action_rng,
+                                                self.EPS_START, self.EPS_END, self.EPS_DECAY, self.STEPS_DONE)
         self.action = next_action
+        self.STEPS_DONE = step_count
 
         return next_action
 
@@ -148,5 +157,8 @@ class DQNAgent:
         # self.total_reward += float(reward.squeeze(0).data)
         self.state = None
 
-        self.optimize_model()
+        optimized_policy_net = optimize_model(self.memory, self.optimizer, self.policy_net, self.target_net, self.GAMMA,
+                                              self.BATCH_SIZE)
+        # copy optimized policy net to self.policy_net
+        self.policy_net = optimized_policy_net
         self.episode += 1
