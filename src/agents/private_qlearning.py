@@ -194,10 +194,10 @@ class PrivateDQNAgent():
     def agent_step(self, reward, next_state):
 
         #manually putting in device='cpu' here to avoid having to pass it in
-        reward = torch.tensor([reward], device='cpu')
+        reward_tensor = torch.tensor([reward], device='cpu')
         reform_next_state = torch.Tensor(next_state).unsqueeze(0)
         #store transition in memory
-        self.memory.push(self.state, self.action, reform_next_state, reward)
+        self.memory.push(self.state, self.action, reform_next_state, reward_tensor)
 
         # recieve reward
         # self.total_reward += float(reward.squeeze(0).data)
@@ -221,7 +221,8 @@ class PrivateDQNAgent():
         if self.episode % self.TARGET_UPDATE == 0:
             self.target_net.load_state_dict(self.policy_net.state_dict())
 
-        self.memory.push(self.state, self.action, None, reward)
+        reward_tensor = torch.tensor([reward], device='cpu')
+        self.memory.push(self.state, self.action, None, reward_tensor)
         # reward = torch.tensor([reward], device='cpu')
         # self.total_reward += float(reward.squeeze(0).data)
         self.state = None

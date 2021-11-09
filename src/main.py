@@ -52,13 +52,12 @@ for episode in range(exp.episodes):
     #     collector.fillRest(np.nan, exp.episodes)
     #     broke = True
     #     break
+    collector.collect('episodic_rewards', glue.total_reward)
 
-    collector.collect('return', glue.total_reward)
-
-return_data = collector.getCurrentRunData('return')
+return_data = collector.getCurrentRunData('episodic_rewards')
 
 # save results to disk
 save_context = exp.buildSaveContext(idx, base="./")
 save_context.ensureExists()
 
-np.save(save_context.resolve('returns.npy'), return_data)
+np.save(save_context.resolve('episodic_rewards.npy'), return_data)
