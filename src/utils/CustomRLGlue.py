@@ -102,3 +102,6 @@ class CustomRLGlue:
             Int: the total number of episodes
         """
         return self.num_episodes
+
+    def check_nan_agent_weights(self):
+        return self.agent.check_nan_weights()

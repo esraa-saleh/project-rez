@@ -44,14 +44,11 @@ collector = Collector()
 for episode in range(exp.episodes):
     # glue.total_reward = 0
     glue.rl_episode(max_steps_this_episode=max_steps)
-
     # if the weights diverge to nan, just quit. This run doesn't matter to me anyways now.
-    #TODO: need to break when weights go to nan. How do we do this in Pytorch?
+    if(glue.check_nan_agent_weights()):
+        collector.fillRest(np.nan, exp.episodes)
+        break
 
-    # if np.isnan(np.sum(agent.w)):
-    #     collector.fillRest(np.nan, exp.episodes)
-    #     broke = True
-    #     break
     collector.collect('episodic_rewards', glue.total_reward)
 
 return_data = collector.getCurrentRunData('episodic_rewards')

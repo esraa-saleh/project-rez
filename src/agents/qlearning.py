@@ -163,3 +163,13 @@ class DQNAgent:
         # copy optimized policy net to self.policy_net
         self.policy_net = optimized_policy_net
         self.episode += 1
+
+    def check_nan_weights(self):
+
+        policy_net_layer1_nan = torch.isnan(self.policy_net.linear1.weight).any()
+        policy_net_layer2_nan = torch.isnan(self.policy_net.linear2.weight).any()
+        target_net_layer1_nan = torch.isnan(self.target_net.linear1.weight).any()
+        target_net_layer2_nan = torch.isnan(self.target_net.linear2.weight).any()
+
+        return (policy_net_layer1_nan or policy_net_layer2_nan or target_net_layer1_nan or target_net_layer2_nan)
+
