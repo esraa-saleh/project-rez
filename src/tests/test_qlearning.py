@@ -10,8 +10,8 @@ env = hitorstandcontinuous()
 m = env.action_space.n
 episode = 10 #arbitrary
 
-seed_bundle = namedtuple('SeedBundle', 'action_seed parameter_init_seed')
-bundle = seed_bundle(1234, 5678)
+seed_bundle = namedtuple('AgentSeedBundle', 'action_seed parameter_init_seed replay_seed')
+bundle = seed_bundle(123, 456, 789)
 
 #AGENT ATTRIBUTE TESTING BLOCK
 

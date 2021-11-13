@@ -5,10 +5,12 @@ Transition = namedtuple('Transition',
                         ('state', 'action', 'next_state', 'reward'))
 class ReplayMemory(object):
 
-    def __init__(self, capacity):
+    def __init__(self, capacity, replay_seeds):
         self.capacity = capacity
         self.memory = []
         self.position = 0
+        seed = replay_seeds.randint(1000)
+        random.seed(seed)
 
     def push(self, *args):
         """Saves a transition."""
@@ -18,6 +20,7 @@ class ReplayMemory(object):
         self.position = (self.position + 1) % self.capacity
 
     def sample(self, batch_size):
+
         return random.sample(self.memory, batch_size)
 
     def __len__(self):
