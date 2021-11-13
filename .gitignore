@@ -128,5 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# ignore pycharm .idea folder
 .idea/
+.vs/
