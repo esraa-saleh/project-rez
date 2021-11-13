@@ -16,11 +16,19 @@ from src.utils.optimize_model import optimize_model
 
 #NETWORK
 class DQN(nn.Module):
-    def __init__(self, m, hidden=16):
+    def __init__(self, m, torch_rng, hidden=16):
         super(DQN, self).__init__()
         self.linear1 = nn.Linear(1, hidden)
         self.linear2 = nn.Linear(hidden, hidden)
         self.head = nn.Linear(hidden, m)
+        torch_seed = torch_rng.randint(1000)
+        torch.manual_seed(torch_seed)
+        torch.cuda.manual_seed(torch_seed)
+        torch.cuda.manual_seed_all(torch_seed)
+        torch.backends.cudnn.benchmark = False
+        torch.backends.cudnn.deterministic = True
+        np.random.seed(torch_seed)
+        random.seed(torch_seed)
 
     def forward(self, s):
         x = F.relu(self.linear1(s))
@@ -31,7 +39,10 @@ class DQN(nn.Module):
 #AGENT
 class DQNAgent:
     def __init__(self, seed_bundle, m, EPS_START=0.9, EPS_END=0.05, EPS_DECAY=200, TARGET_UPDATE=10, BATCH_SIZE=128, GAMMA=0.99):
-        self.memory = ReplayMemory(10000)
+        self.action_rng = np.random.RandomState(seed_bundle.action_seed)
+        self.replay_rng = np.random.RandomState(seed_bundle.replay_seed)
+        self.torch_rng = np.random.RandomState(seed_bundle.parameter_init_seed)
+        self.memory = ReplayMemory(10000, self.replay_rng)
         # self.total_reward = None
         self.state = None
         self.action = None
@@ -44,12 +55,11 @@ class DQNAgent:
         self.TARGET_UPDATE = TARGET_UPDATE
         self.STEPS_DONE = 0
         self.m = m
-        self.policy_net = DQN(self.m)
-        self.target_net = DQN(self.m)
+        self.policy_net = DQN(self.m, self.torch_rng)
+        self.target_net = DQN(self.m, self.torch_rng)
         #self.target_net.load_state_dict(self.policy_net.parameters())
         self.target_net.eval()
         self.optimizer = optim.RMSprop(self.policy_net.parameters())
-        self.action_rng = np.random.RandomState(seed_bundle.action_seed)
 
     #getters for ReplayMemory and total reward
     def agent_get_memory(self):

@@ -9,13 +9,17 @@ class SeedsHolder:
             self.action_seeds = data["action_seeds"]
             self.parameter_init_seeds = data["parameter_init_seeds"]
             self.env_reaction_seeds = data["env_reaction_seeds"]
+            self.noisebuffer_seeds = data["noisebuffer_seeds"]
+            self.replay_seeds = data["replay_seeds"]
 
         if(len(self.action_seeds) < max_required_seeds
                 and len(self.parameter_init_seeds) < max_required_seeds
+                and len(self.noisebuffer_seeds) < max_required_seeds
+                and len(self.replay_seeds) < max_required_seeds
                 and len(self.env_reaction_seeds) < max_required_seeds):
             raise NotImplementedError
 
-        self.agent_seed_bundle_class = namedtuple('AgentSeedBundle', 'action_seed parameter_init_seed')
+        self.agent_seed_bundle_class = namedtuple('AgentSeedBundle', 'action_seed parameter_init_seed noisebuffer_seed replay_seed')
         self.env_seed_bundle_class = namedtuple('EnvSeedBundle', 'env_reaction_seed')
 
 
