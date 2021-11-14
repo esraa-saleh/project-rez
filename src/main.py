@@ -25,12 +25,12 @@ max_steps = exp.max_steps
 curr_run = exp.getRun(idx=idx)
 seeds_holder = SeedsHolder(max_required_seeds=runs)
 agent_seed_bundle, env_seed_bundle = seeds_holder.get_seed_for_parallel_run(run=curr_run)
+print(agent_seed_bundle, env_seed_bundle)
 
 # np.random.seed(agent_seed_bundle.real_action_seed)
 
 Problem = getProblem(exp.problem)
 problem = Problem(exp, idx, agent_seed_bundle, env_seed_bundle)
-# TODO: adjust problem so that it accepts seed, instead of seeding with numpy seed
 # problem = Problem(exp, idx, agent_seed_bundle)
 
 agent = problem.getAgent()

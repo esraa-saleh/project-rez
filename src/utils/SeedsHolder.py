@@ -27,4 +27,6 @@ class SeedsHolder:
         seed_action = self.action_seeds[run]
         seed_param_init = self.parameter_init_seeds[run]
         seed_env_reaction = self.env_reaction_seeds[run]
-        return self.agent_seed_bundle_class(seed_action, seed_param_init), self.env_seed_bundle_class(seed_env_reaction)
+        noisebuffer_seed = self.noisebuffer_seeds[run]
+        replay_seed = self.replay_seeds[run]
+        return self.agent_seed_bundle_class(seed_action, seed_param_init, noisebuffer_seed, replay_seed), self.env_seed_bundle_class(seed_env_reaction)
