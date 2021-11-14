@@ -65,7 +65,7 @@ module --force purge
 module load nixpkgs/16.09 python/3.6 gcc/7.3.0 cuda/10.2 cudacore/.10.1.243 cudnn/7.6.5
 source rez-env/bin/activate
 export XLA_FLAGS=--xla_gpu_cuda_data_dir=$CUDA_PATH
-python src/slurm.py <env_name> ./clusters/beluga.json src/main.py ./ <num_runs> <json_experiment_file1> <json_experiment_file2>
+python scripts/slurm.py <env_name> ./clusters/beluga.json src/main.py ./ <num_runs> <json_experiment_file1> <json_experiment_file2>
 ```
 
 # Citations:
