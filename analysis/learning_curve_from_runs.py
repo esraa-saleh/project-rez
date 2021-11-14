@@ -94,6 +94,7 @@ def plotData(dataList):
         ax.legend()
         print("plotted:", data.exp.agent, ", AUC: ", data.auc)
         print("hyperparameters:", data.bestparams)
+    plt.ylim([0,50])
     plt.show()
 
 
