@@ -12,7 +12,7 @@ from pathlib import Path
 from scipy.integrate import simps
 from src.analysis.colors import colors
 
-DataClass = namedtuple("BestCurveData", "exp idx mean, stderr auc")
+DataClass = namedtuple("BestCurveData", "exp bestparams mean, stderr auc")
 
 # this is if we want smoothing.
 def bin_series(arr, bin_size):
@@ -23,10 +23,11 @@ def bin_series(arr, bin_size):
 
 # gets the averaged curve given a certain hyperparam result directory containing run folders
 # that contain the run data in numpy files
-def averagedResultsFromFilePathsForRuns(numRuns, expSaveContext, fileName, bin_size=1):
+def averagedResultsFromFilePathsForRuns(numRuns, runDirPath, fileName, bin_size=1):
     collector = Collector()
     for currRun in range(numRuns):
-        runPath = expSaveContext.resolve(fileName)
+        runPath = runDirPath + "/" + str(currRun) + "/" + fileName
+        print(runPath)
         try:
             arr = np.array(np.load(runPath, allow_pickle=True), dtype = 'float64')
         except (FileNotFoundError, EOFError, OSError) as e :
@@ -49,18 +50,20 @@ def createPlottingData(expPaths, numRuns, resultsFileName, curveGranularity= "ep
     for expPath in expPaths:
         print(expPath)
         exp = ExperimentModel.load(expPath)
-        numParamPerms = exp.numPermutations()
+        numPerms = exp.numPermutations()
+        expDir = Path(exp.path).parent.name
         if(curveGranularity == "episodic"):
             expectedCurveLen = exp.episodes
         else:
             raise NotImplementedError(curveGranularity)
 
         bestAUC = float('inf')
-        bestIdx = None
+        bestParams = None
         bestCurve = None
-        for idx in range(numParamPerms):
-            metaParamPermDir = exp.buildSaveContext(idx, base="./")
-            mean, stderr = averagedResultsFromFilePathsForRuns(numRuns, metaParamPermDir, resultsFileName, bin_size=1)
+        for perm_num in range(numPerms):
+            perm = exp.getPermutation(perm_num)['metaParameters']
+            runsDirPath = "results/" + expDir + "/" + exp.agent + "/" + hyphenatedStringify(perm)
+            mean, stderr = averagedResultsFromFilePathsForRuns(numRuns, runsDirPath, resultsFileName, bin_size=1)
             if (mean.shape[0] < expectedCurveLen):  # this is a diverging run
                 aucOther = float('inf')
             else:
@@ -68,9 +71,9 @@ def createPlottingData(expPaths, numRuns, resultsFileName, curveGranularity= "ep
 
             if aucOther < bestAUC:
                 bestAUC = aucOther
-                bestIdx = idx
                 bestCurve = (mean, stderr)
-        data.append(DataClass(exp, bestIdx, bestCurve[0], bestCurve[1], bestAUC))
+                bestParams = perm
+        data.append(DataClass(exp, bestParams, bestCurve[0], bestCurve[1], bestAUC))
     return data
 
 def confidenceInterval(mean, stderr):
@@ -86,27 +89,11 @@ def plotData(dataList):
 
         ax.plot(data.mean, linestyle=None, label=label, color=colors[data.exp.agent], alpha=alphaMain, linewidth=2)
         (low_ci, high_ci) = confidenceInterval(data.mean, data.stderr)
-        print(data.stderr)
         ax.fill_between(range(data.mean.shape[0]), low_ci, high_ci, color=colors[data.exp.agent],
                         alpha=alpha * alphaMain)
         ax.legend()
-
-        # reshaped_mean = np.reshape(data.mean, (-1, 1))
-        # reshaped_ste = np.reshape(data.stderr, (-1, 1))
-        #
-        # for i in range(reshaped_mean.shape[1]):
-        #
-        #     ste_to_plt = reshaped_ste[:, i]
-        #     mean_to_plt = reshaped_mean[:, i]
-        #
-        #     ax.plot(mean_to_plt, linestyle=None, label=label, color=colors[data.exp.agent], alpha=alphaMain, linewidth=2)
-        #     if ste_to_plt is not None:
-        #         (low_ci, high_ci) = confidenceInterval(mean_to_plt, ste_to_plt)
-        #         ax.fill_between(range(mean_to_plt.shape[0]), low_ci, high_ci, color=colors[data.exp.agent], alpha=alpha * alphaMain)
-        #
-        #     ax.legend()
         print("plotted:", data.exp.agent, ", AUC: ", data.auc)
-        print("hyperparams:", data.exp.getPermutation(data.idx))
+        print("hyperparameters:", data.bestparams)
     plt.show()
 
 
