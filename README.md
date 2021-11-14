@@ -18,6 +18,7 @@ Now, install dependencies.
 pip install -r requirements.txt
 ```
 
+## Running Locally
 If you would like to run local example experiments use this (IMPORTANT: make sure your working directory is project-rez,
 I would usually set that up on my PyCharm IDE):
 
@@ -32,7 +33,40 @@ What happens internally is that main.py will recieve an index that tells it whic
 from the sweeps it will be doing and which run it is at. What is bieng saved now in the example
 is the returns per run.
 
+## Running on Compute Canada
 
+### First Time Setup
+# TODO: I don't know yet if all of this will work with python 3.9. This is 3.6.
+
+```
+module --force purge
+module load nixpkgs/16.09 python/3.6 gcc/7.3.0 cuda/10.2 cudacore/.10.1.243 cudnn/7.6.5
+virtualenv rez-env
+source rez-env/bin/activate
+pip install --upgrade --no-index pip
+export XLA_FLAGS=--xla_gpu_cuda_data_dir=$CUDA_PATH
+
+pip install -r requirements.txt
+```
+Note: Not sure why but Narval's highest Pytorch is 1.9.
+If you can't install something with requirements.txt,
+ because a version isn't available you'll need to install manually with pip and try out
+ whatever version is available.
+
+### Running after setup was done once
+The following command will submit jobs with parallel tasks automatically.
+
+Note that you can have an arbitrary number of files that are json experiment files in the command
+The "./" is just the path to where the parent directory for the results folder is. Usually results are under
+the project's directory.
+
+```
+module --force purge
+module load nixpkgs/16.09 python/3.6 gcc/7.3.0 cuda/10.2 cudacore/.10.1.243 cudnn/7.6.5
+source rez-env/bin/activate
+export XLA_FLAGS=--xla_gpu_cuda_data_dir=$CUDA_PATH
+python src/slurm.py <env_name> ./clusters/beluga.json src/main.py ./ <num_runs> <json_experiment_file1> <json_experiment_file2>
+```
 
 # Citations:
 This codebase is built with a customization of the rl-control-template repo by Andy Patterson and the forked repo by Kirby Banman.
