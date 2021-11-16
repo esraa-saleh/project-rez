@@ -10,6 +10,6 @@
         "TARGET_UPDATE": [10],
         "BATCH_SIZE": [128],
         "GAMMA": [0.99],
-        "sparsity": [0.05]
+        "sparsity": [0.2]
     }
 }
