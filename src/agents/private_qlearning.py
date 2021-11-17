@@ -5,10 +5,8 @@ import torch.nn.functional as F
 from torch import optim
 import bisect
 import random
-import math
-from src.environments.hitorstandcontinuous import hitorstandcontinuous
+
 from src.utils.ReplayMemory import ReplayMemory
-from src.utils.ReplayMemory import Transition
 
 from src.utils.select_action import select_action
 from src.utils.optimize_model import optimize_model
@@ -22,8 +20,7 @@ class NoiseBuffer:
         self.base = {}
         self.m = m
         self.sigma = sigma
-        # sets np seed (samples a random int from RandomState nb_seeds between 0-1000)
-        np.random.seed(nb_seeds.randint(1000))
+        self.nb_seeds = nb_seeds
 
     def kk(self, x, y):
         return np.exp(-abs(x - y))
@@ -37,8 +34,8 @@ class NoiseBuffer:
         sigma = self.sigma
             
         if len(buffer) == 0:
-            v0 = np.random.normal(0, sigma)
-            v1 = np.random.normal(0, sigma)
+            v0 = self.nb_seeds.normal(0, sigma)
+            v1 = self.nb_seeds.normal(0, sigma)
             self.buffer.append((s, v0, v1))
             return (v0, v1)
         else:
@@ -59,16 +56,16 @@ class NoiseBuffer:
             mean1 = self.kk(s, buffer[0][0]) * buffer[0][2]
             var0 = 1 - self.kk(s, buffer[0][0]) ** 2
             var1 = 1 - self.kk(s, buffer[0][0]) ** 2
-            v0 = np.random.normal(mean0, np.sqrt(var0) * sigma)
-            v1 = np.random.normal(mean1, np.sqrt(var1) * sigma)
+            v0 = self.nb_seeds.normal(mean0, np.sqrt(var0) * sigma)
+            v1 = self.nb_seeds.normal(mean1, np.sqrt(var1) * sigma)
             self.buffer.insert(0, (s, v0, v1))
         elif s > buffer[-1][0]:
             mean0 = self.kk(s, buffer[-1][0]) * buffer[0][1]
             mean1 = self.kk(s, buffer[-1][0]) * buffer[0][2]
             var0 = 1 - self.kk(s, buffer[-1][0]) ** 2
             var1 = var0
-            v0 = np.random.normal(mean0, np.sqrt(var0) * sigma)
-            v1 = np.random.normal(mean1, np.sqrt(var1) * sigma)
+            v0 = self.nb_seeds.normal(mean0, np.sqrt(var0) * sigma)
+            v1 = self.nb_seeds.normal(mean1, np.sqrt(var1) * sigma)
             self.buffer.insert(len(buffer), (s, v0, v1))
         else:
             idx = bisect.bisect(buffer, (s, None, None))
@@ -78,8 +75,8 @@ class NoiseBuffer:
             mean1 = (self.rho(splus, s)*eminus1 + self.rho(sminus, s)*eplus1) / self.rho(sminus, splus)
             var0 = 1 - (self.kk(sminus, s)*self.rho(splus, s) + self.kk(splus, s)*self.rho(sminus, s)) / self.rho(sminus, splus)
             var1 = var0
-            v0 = np.random.normal(mean0, np.sqrt(var0) * sigma)
-            v1 = np.random.normal(mean1, np.sqrt(var1) * sigma)
+            v0 = self.nb_seeds.normal(mean0, np.sqrt(var0) * sigma)
+            v1 = self.nb_seeds.normal(mean1, np.sqrt(var1) * sigma)
             self.buffer.insert(idx, (s, v0, v1))
         return (v0, v1)
 
@@ -95,6 +92,7 @@ class PrivateDQN(nn.Module):
         self.head = nn.Linear(hidden, m)
         self.sigma = sigma
         self.nb = NoiseBuffer(m, sigma, nb_rng)
+        #sets global PyTorch seeds (np & random seeds required for NN backend)
         torch_seed = torch_rng.randint(1000)
         torch.manual_seed(torch_seed)
         torch.cuda.manual_seed(torch_seed)
@@ -120,6 +118,7 @@ class PrivateDQNAgent():
     def __init__(self, seed_bundle, m, EPS_START=0.9, EPS_END=0.05, EPS_DECAY=200, TARGET_UPDATE=10, BATCH_SIZE=128, GAMMA=0.99):
         self.action_rng = np.random.RandomState(seed_bundle.action_seed)
         self.nb_rng = np.random.RandomState(seed_bundle.noisebuffer_seed)
+        #move to replay init
         self.replay_rng = np.random.RandomState(seed_bundle.replay_seed)
         self.torch_rng = np.random.RandomState(seed_bundle.parameter_init_seed)
         self.memory = ReplayMemory(10000, self.replay_rng)
@@ -137,7 +136,6 @@ class PrivateDQNAgent():
         self.m = m
         self.policy_net = PrivateDQN(self.m, self.nb_rng, self.torch_rng)
         self.target_net = PrivateDQN(self.m, self.nb_rng, self.torch_rng)
-        #self.target_net.load_state_dict(self.policy_net.parameters())
         self.target_net.eval()
         self.optimizer = optim.RMSprop(self.policy_net.parameters())
 

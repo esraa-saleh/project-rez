@@ -6,7 +6,6 @@ import numpy as np
 from src.agents.private_qlearning import PrivateDQNAgent
 from src.environments.hitorstandcontinuous import hitorstandcontinuous
 from collections import namedtuple
-from src.utils.SeedsHolder import SeedsHolder
 
 env = hitorstandcontinuous()
 m = env.action_space.n

@@ -21,6 +21,8 @@ class DQN(nn.Module):
         self.linear1 = nn.Linear(1, hidden)
         self.linear2 = nn.Linear(hidden, hidden)
         self.head = nn.Linear(hidden, m)
+
+        # sets global PyTorch seeds (np & random seeds required for NN backend)
         torch_seed = torch_rng.randint(1000)
         torch.manual_seed(torch_seed)
         torch.cuda.manual_seed(torch_seed)
@@ -57,7 +59,6 @@ class DQNAgent:
         self.m = m
         self.policy_net = DQN(self.m, self.torch_rng)
         self.target_net = DQN(self.m, self.torch_rng)
-        #self.target_net.load_state_dict(self.policy_net.parameters())
         self.target_net.eval()
         self.optimizer = optim.RMSprop(self.policy_net.parameters())
 
