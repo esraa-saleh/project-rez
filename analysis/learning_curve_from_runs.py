@@ -85,11 +85,11 @@ def plotData(dataList):
 
     f, ax = plt.subplots(1)
     for data in dataList:
-        label = data.exp.agent
-
-        ax.plot(data.mean, linestyle=None, label=label, color=colors[data.exp.agent], alpha=alphaMain, linewidth=2)
+        sparsity_str = str(data.exp.permutable()["metaParameters"]["sparsity"])
+        label = data.exp.agent + "_" + sparsity_str + "-sparsity"
+        ax.plot(data.mean, linestyle=None, label=label, alpha=alphaMain, linewidth=2)
         (low_ci, high_ci) = confidenceInterval(data.mean, data.stderr)
-        ax.fill_between(range(data.mean.shape[0]), low_ci, high_ci, color=colors[data.exp.agent],
+        ax.fill_between(range(data.mean.shape[0]), low_ci, high_ci,
                         alpha=alpha * alphaMain)
         ax.legend()
         print("plotted:", data.exp.agent, ", AUC: ", data.auc)
