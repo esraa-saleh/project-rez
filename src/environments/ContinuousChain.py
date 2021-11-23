@@ -53,20 +53,22 @@ class ContinuousChain:
         """
         self.cnt += 1
         if action == 1:
-            next__state = min(self.state + self.rng.uniform(0.0, 0.25, (1,)), np.array([1.0])) 
-            reward = float(next__state//self.sparsity - self.state//self.sparsity)
+            next__state = min(self.state + self.rng.uniform(0.0, 0.25, (1,)), np.array([1.0]))
+            if next__state != np.array([1.0]):
+                reward = -1 * float(next__state//self.sparsity - self.state//self.sparsity)
             self.state = next__state
             
         elif action == 0:
             self.state = max(self.state - self.rng.uniform(0.0, 0.25, (1,)), np.array([0.0]))
-            reward = 0
+            reward = -1 * float(next__state//self.sparsity - self.state//self.sparsity)
         else:
             raise NotImplementedError
         
         if self.state == np.array([1.0]):
-          done = np.array([True])
+            done = np.array([True])
+            reward = 0
         else:
-          done = np.array([self.cnt == self.length])
+            done = np.array([self.cnt == self.length])
         
         if done:
             self.cnt = 0
