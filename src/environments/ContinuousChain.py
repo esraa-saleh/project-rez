@@ -59,7 +59,7 @@ class ContinuousChain:
             self.state = next__state
             
         elif action == 0:
-            next__state = max(self.state + self.rng.uniform(0.0, 0.25, (1,)), np.array([1.0]))
+            next__state = max(self.state - self.rng.uniform(0.0, 0.25, (1,)), np.array([0.0]))
             reward = -1 * float(next__state // self.sparsity - self.state // self.sparsity)
             self.state =  next__state
 
