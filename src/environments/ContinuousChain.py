@@ -22,8 +22,9 @@ class ContinuousChain:
         self.length = max_episode_len
         self.sparsity = sparsity
         self.min_inc = 0.1
-        #TODO: what if allowable distances were all above 0.1
-        self.interval_end = 10
+        self.max_dist = 0.2
+        self.min_dist = self.min_inc
+        self.interval_end = 1
         if(self.sparsity < self.min_inc):
             raise NotImplementedError
         self.rng = np.random.RandomState(seed)
@@ -31,6 +32,8 @@ class ContinuousChain:
 
     def get_num_actions(self):
         return self.num_actions
+    def get_actions(self):
+        return [0,1]
 
 
     def env_start(self):
@@ -58,18 +61,19 @@ class ContinuousChain:
         """
         self.cnt += 1
         if action == 1:
-            next__state = min(self.state + self.rng.uniform(0.0, 0.25, (1,)), np.array([self.interval_end]))
-            reward = float(next__state//self.sparsity - self.state//self.sparsity)*float(abs(next__state - self.state ))
+            next__state = min(self.state + self.rng.uniform(self.min_dist, self.max_dist, (1,)), np.array([self.interval_end]))
+            reward = float(next__state//self.sparsity - self.state//self.sparsity)*self.min_inc
             self.state = next__state
             
         elif action == 0:
-            self.state = max(self.state - self.rng.uniform(0.0, 0.25, (1,)), np.array([0.0]))
+            self.state = max(self.state - self.rng.uniform(self.min_dist, self.max_dist, (1,)), np.array([0.0]))
             reward = 0
         else:
             raise NotImplementedError
         
         if self.state == np.array([self.interval_end]):
           done = np.array([True])
+          reward = 100
         else:
           done = np.array([self.cnt == self.length])
         

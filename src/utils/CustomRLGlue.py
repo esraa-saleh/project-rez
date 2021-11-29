@@ -22,17 +22,30 @@ class CustomRLGlue:
         self.total_reward = 0.0
         self.num_steps = 0
         self.num_episodes = 0
+        self.action_counts = self.__empty_action_counts()
+
+    def __empty_action_counts(self):
+        actions = self.environment.get_actions()
+        action_counts = {}
+        for a in actions:
+            action_counts[a] = 0
+        return action_counts
+
+
+    def __add_action_to_counts(self, action):
+        self.action_counts[action] += 1
 
     def __rl_start(self):
         """Starts RLGlue experiment
         Returns:
             tuple: (state, action)
         """
+        self.action_counts = self.__empty_action_counts()
         self.total_reward = 0.0
         self.num_steps = 0
         last_state = self.environment.env_start()
         self.last_action = self.agent.agent_start(last_state)
-
+        self.__add_action_to_counts(self.last_action)
         observation = (last_state, self.last_action)
 
         return observation
@@ -58,6 +71,7 @@ class CustomRLGlue:
         else:
             self.num_steps += 1
             self.last_action = self.agent.agent_step(reward, last_state)
+            self.__add_action_to_counts(self.last_action)
             roat = (reward, last_state, self.last_action, term)
 
         return roat
@@ -102,6 +116,11 @@ class CustomRLGlue:
             Int: the total number of episodes
         """
         return self.num_episodes
+
+    def rl_episode_action_proportion(self, action):
+        if(not(action in self.action_counts)):
+            raise NotImplementedError
+        return self.action_counts[action]/float(self.num_steps+1)
 
     def check_nan_agent_weights(self):
         return self.agent.check_nan_weights()

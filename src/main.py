@@ -50,11 +50,14 @@ for episode in range(exp.episodes):
         break
 
     collector.collect('episodic_rewards', glue.total_reward)
+    collector.collect('right_action_proportion', glue.rl_episode_action_proportion(1))
 
 return_data = collector.getCurrentRunData('episodic_rewards')
+r_prop_data = collector.getCurrentRunData('right_action_proportion')
 
 # save results to disk
 save_context = exp.buildSaveContext(idx, base="./")
 save_context.ensureExists()
 
 np.save(save_context.resolve('episodic_rewards.npy'), return_data)
+np.save(save_context.resolve('right_action_proportion.npy'), r_prop_data)
