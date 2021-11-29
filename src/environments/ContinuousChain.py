@@ -16,8 +16,6 @@ class ContinuousChain:
             Initialize a tuple with the reward, first state, boolean
             indicating if it's terminal.
         """
-        self.observation_space = Box(0*np.ones(1), 1.0*np.ones(1), dtype=np.float64)
-        self.action_space = Discrete(2)
         self.cnt = 0
         self.length = max_episode_len
         self.interval_end = 3
