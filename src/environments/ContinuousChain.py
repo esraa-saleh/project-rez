@@ -20,11 +20,11 @@ class ContinuousChain:
         self.action_space = Discrete(2)
         self.cnt = 0
         self.length = max_episode_len
-        self.sparsity = sparsity
+        self.interval_end = 3
+        self.sparsity = sparsity*self.interval_end
         self.min_inc = 0.1
         self.max_dist = 0.2
         self.min_dist = self.min_inc
-        self.interval_end = 1
         if(self.sparsity < self.min_inc):
             raise NotImplementedError
         self.rng = np.random.RandomState(seed)
