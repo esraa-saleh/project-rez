@@ -129,7 +129,7 @@ class DQNAgent:
                                            self.EPS_END, self.EPS_DECAY, self.STEPS_DONE)
         self.action = action
         self.STEPS_DONE = step_count
-        return action
+        return action.item()
 
     def agent_step(self, reward, next_state):
         # manually putting in device='cpu' here to avoid having to pass it in
@@ -156,7 +156,7 @@ class DQNAgent:
         self.action = next_action
         self.STEPS_DONE = step_count
 
-        return next_action
+        return next_action.item()
 
     def agent_end(self, reward):
         if self.episode % self.TARGET_UPDATE == 0:

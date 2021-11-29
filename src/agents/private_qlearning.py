@@ -204,7 +204,7 @@ class PrivateDQNAgent():
         action, step_count = select_action(self.state, self.policy_net, self.m, self.action_rng, self.EPS_START, self.EPS_END, self.EPS_DECAY, self.STEPS_DONE)
         self.action = action
         self.STEPS_DONE = step_count
-        return action
+        return action.item()
 
     def agent_step(self, reward, next_state):
 
@@ -230,7 +230,7 @@ class PrivateDQNAgent():
         self.action = next_action
         self.STEPS_DONE = step_count
 
-        return next_action
+        return next_action.item()
 
     def agent_end(self, reward):
         if self.episode % self.TARGET_UPDATE == 0:
