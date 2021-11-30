@@ -2,7 +2,7 @@
     "agent": "private_qlearning",
     "problem": "ContinuousChain",
     "episodes": 5000,
-    "max_steps": 50,
+    "max_steps": 150,
     "metaParameters": {
         "EPS_START": [0.9],
         "EPS_END": [0.05],
