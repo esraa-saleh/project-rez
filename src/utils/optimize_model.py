@@ -3,6 +3,11 @@ import torch.nn.functional as F
 from src.utils.ReplayMemory import ReplayMemory
 from src.utils.ReplayMemory import Transition
 
+'''
+This code is a modified version of Wang & Hegde [2019] and the PyTorch DQN tutorial found at:
+https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html
+'''
+
 def optimize_model(memory, optimizer, policy_net, target_net, GAMMA, BATCH_SIZE, device="cpu"):
 
     if len(memory) < BATCH_SIZE:
@@ -10,9 +15,6 @@ def optimize_model(memory, optimizer, policy_net, target_net, GAMMA, BATCH_SIZE,
     transitions = memory.sample(BATCH_SIZE)
 
     batch = Transition(*zip(*transitions))
-
-    # Compute a mask of non-final states and concatenate the batch elements
-    # (a final state would've been the one after which simulation ended)
     non_final_mask = torch.tensor(tuple(map(lambda s: s is not None,
                                             batch.next_state)), device=device, dtype=torch.uint8)
     non_final_next_states = torch.cat([s for s in batch.next_state
