@@ -18,10 +18,10 @@ class ContinuousChain:
         """
         self.cnt = 0
         self.length = max_episode_len
-        self.interval_end = 3
+        self.interval_end = 1.0
         self.sparsity = sparsity*self.interval_end
-        self.min_inc = 0.1
-        self.max_dist = 0.2
+        self.min_inc = 0.05
+        self.max_dist = 0.1
         self.min_dist = self.min_inc
         if(self.sparsity < self.min_inc):
             raise NotImplementedError
@@ -58,14 +58,15 @@ class ContinuousChain:
                 and boolean indicating if it's terminal.
         """
         self.cnt += 1
+        # s = self.state
         if action == 1:
             next__state = min(self.state + self.rng.uniform(self.min_dist, self.max_dist, (1,)), np.array([self.interval_end]))
-            reward = float(next__state//self.sparsity - self.state//self.sparsity)*self.min_inc
+            reward = float(((next__state//self.sparsity) - (self.state//self.sparsity)))*self.min_inc
             self.state = next__state
             
         elif action == 0:
             self.state = max(self.state - self.rng.uniform(self.min_dist, self.max_dist, (1,)), np.array([0.0]))
-            reward = 0
+            reward = 0.0
         else:
             raise NotImplementedError
         
@@ -77,7 +78,7 @@ class ContinuousChain:
         
         if done:
             self.cnt = 0
-        
+        # print("action: ", action, "r: ", reward, "s:", s , " s_prime: ", self.state)
         return reward, self.state, done
 
         
