@@ -6,7 +6,6 @@ import numpy as np
 from src.agents.private_qlearning import PrivateDQNAgent
 from src.environments.hitorstandcontinuous import hitorstandcontinuous
 from collections import namedtuple
-from src.utils.SeedsHolder import SeedsHolder
 
 env = hitorstandcontinuous()
 m = env.action_space.n
@@ -83,9 +82,8 @@ def test_replay_push():
     action = agent.agent_start(state)
     reward = 10 #arbitrary
     next_action = agent.agent_step(state, reward)
-    #nonsense pushing nonsense transition (same state)
+    #pushing nonsense transition (same state)
     agent.memory.push(state, action, state, reward)
-    #not sure what else to check here since memory pre-allocated
     assert len(agent.memory) > 0
 
 
