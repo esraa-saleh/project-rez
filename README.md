@@ -76,7 +76,7 @@ python scripts/slurm.py <env_name> ./clusters/beluga.json src/main.py ./ <num_ru
 ### Plotting
 To plot data after it is generated, use:
 ```
-python learning_curve_from_runs.py <number_of_runs_to_plot> ./ right_action_proportion.npy <path/to/experiment_file1.json> python learning_curve_from_runs.py <number_of_runs_to_plot> ./ right_action_proportion.npy <path/to/experiment_file2.json>
+python learning_curve_from_runs.py <number_of_runs_to_plot> ./ right_action_proportion.npy <path/to/experiment_file1.json> <path/to/experiment_file2.json>
 
 ```
 You can add an arbitrary number of json files to plot their experiments.
