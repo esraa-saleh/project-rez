@@ -82,6 +82,5 @@ python learning_curve_from_runs.py <number_of_runs_to_plot> ./ right_action_prop
 You can add an arbitrary number of json files to plot their experiments.
 
 # Citations:
-This codebase is built with a customization of the rl-control-template repo by Andy Patterson and the forked repo by Kirby Banman.
-The agents are based on code from "Privacy-preserving Q-Learning with Functional Noise in Continuous State Spaces"
- by Wang and Hegde (2019): https://arxiv.org/abs/1901.10634
+This codebase is built with a customization of the rl-control-template repo by Andy Patterson and the forked repo by Kirby Banman (https://github.com/kdbanman/RL-control-template).
+The agents are based on code from (https://github.com/wangbx66/differentially-private-q-learning) that is based on "Privacy-preserving Q-Learning with Functional Noise in Continuous State Spaces" by Wang and Hegde (2019): https://arxiv.org/abs/1901.10634
