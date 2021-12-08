@@ -1,10 +1,7 @@
-from src.problems.ContinuousChain import ContinuousChain
-from src.problems.MountainCar import MountainCar
+from src.problems.ContinuousChainProblem import ContinuousChainProblem
 
 def getProblem(name):
     if(name == "ContinuousChain"):
-        return ContinuousChain
-    elif(name == 'MountainCar'):
-        return MountainCar
+        return ContinuousChainProblem
 
     raise NotImplementedError(name)

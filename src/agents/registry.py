@@ -1,14 +1,11 @@
-from src.agents.SARSA import SARSA
+from src.agents.qlearning import DQNAgent as qlearning
+from src.agents.private_qlearning import PrivateDQNAgent as private_qlearning
 
 def getAgent(name):
     if(name == 'qlearning'):
-        pass
-        #return QLearning
+        return qlearning
     if(name == 'private_qlearning'):
-        pass
-        #return PrivateQLearning
-    if name == 'SARSA':
-        return SARSA
+        return private_qlearning
 
     raise NotImplementedError()
 
