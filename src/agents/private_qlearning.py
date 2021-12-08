@@ -21,7 +21,7 @@ class NoiseBuffer:
         self.base = {}
         self.m = m
         self.sigma = sigma
-        np.random.seed(nb_seeds.randint(1000))
+        self.nb_seeds = nb_seeds
 
     def kk(self, x, y):
         return np.exp(-abs(x - y))
@@ -35,8 +35,8 @@ class NoiseBuffer:
         sigma = self.sigma
             
         if len(buffer) == 0:
-            v0 = np.random.normal(0, sigma)
-            v1 = np.random.normal(0, sigma)
+            v0 = self.nb_seeds.normal(0, sigma)
+            v1 = self.nb_seeds.normal(0, sigma)
             self.buffer.append((s, v0, v1))
             return (v0, v1)
         else:
@@ -57,16 +57,16 @@ class NoiseBuffer:
             mean1 = self.kk(s, buffer[0][0]) * buffer[0][2]
             var0 = 1 - self.kk(s, buffer[0][0]) ** 2
             var1 = 1 - self.kk(s, buffer[0][0]) ** 2
-            v0 = np.random.normal(mean0, np.sqrt(var0) * sigma)
-            v1 = np.random.normal(mean1, np.sqrt(var1) * sigma)
+            v0 = self.nb_seeds.normal(mean0, np.sqrt(var0) * sigma)
+            v1 = self.nb_seeds.normal(mean1, np.sqrt(var1) * sigma)
             self.buffer.insert(0, (s, v0, v1))
         elif s > buffer[-1][0]:
             mean0 = self.kk(s, buffer[-1][0]) * buffer[0][1]
             mean1 = self.kk(s, buffer[-1][0]) * buffer[0][2]
             var0 = 1 - self.kk(s, buffer[-1][0]) ** 2
             var1 = var0
-            v0 = np.random.normal(mean0, np.sqrt(var0) * sigma)
-            v1 = np.random.normal(mean1, np.sqrt(var1) * sigma)
+            v0 = self.nb_seeds.normal(mean0, np.sqrt(var0) * sigma)
+            v1 = self.nb_seeds.normal(mean1, np.sqrt(var1) * sigma)
             self.buffer.insert(len(buffer), (s, v0, v1))
         else:
             idx = bisect.bisect(buffer, (s, None, None))

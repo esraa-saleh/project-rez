@@ -12,7 +12,13 @@ class ContinuousChainProblem:
         perm = exp.getPermutation(idx)
         self.params = perm['metaParameters']
 
-        self.env = ContinuousChain(self.params["sparsity"], env_seed_bundle.env_reaction_seed, exp.max_steps)
+        extra_properties = {"interval_end": self.params["interval_end"],
+                            "reward_mult": self.params["reward_mult"],
+                            "min_dist": self.params["min_dist"],
+                            "max_dist": self.params["max_dist"]}
+
+        self.env = ContinuousChain(self.params["sparsity"], env_seed_bundle.env_reaction_seed, exp.max_steps,
+                                   extra_properties)
         m = self.env.get_num_actions()
         Agent = getAgent(self.exp.agent)
 

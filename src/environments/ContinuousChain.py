@@ -10,7 +10,7 @@ import numpy as np
 class ContinuousChain:
 
 
-    def __init__(self, sparsity, seed, max_episode_len):
+    def __init__(self, sparsity, seed, max_episode_len, extra_properties):
         """Setup for the environment called when the experiment first starts.
         Note:
             Initialize a tuple with the reward, first state, boolean
@@ -18,11 +18,11 @@ class ContinuousChain:
         """
         self.cnt = 0
         self.length = max_episode_len
-        self.interval_end = 1.0
+        self.interval_end = extra_properties["interval_end"]
         self.sparsity = sparsity*self.interval_end
-        self.min_inc = 0.05
-        self.max_dist = 0.1
-        self.min_dist = self.min_inc
+        self.min_inc = extra_properties["reward_mult"]
+        self.max_dist = extra_properties["max_dist"]
+        self.min_dist = extra_properties["min_dist"]
         if(self.sparsity < self.min_inc):
             raise NotImplementedError
         self.rng = np.random.RandomState(seed)
@@ -71,10 +71,10 @@ class ContinuousChain:
             raise NotImplementedError
         
         if self.state == np.array([self.interval_end]):
-          done = np.array([True])
-          reward = 100
+            done = np.array([True])
+            reward = 100.0
         else:
-          done = np.array([self.cnt == self.length])
+            done = np.array([self.cnt == self.length])
         
         if done:
             self.cnt = 0

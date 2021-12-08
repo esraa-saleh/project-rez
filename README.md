@@ -2,7 +2,7 @@
 
 # Setup Instructions
 
-Make sure you're using Python 3.9 (that's what Esra'a initially tested with).
+Make sure you're using Python 3.9.
 
 Create a virtual environment "rez-env" with the command :
 ```
@@ -33,10 +33,15 @@ What happens internally is that main.py will recieve an index that tells it whic
 from the sweeps it will be doing and which run it is at. What is bieng saved now in the example
 is the returns per run.
 
+json files for experiments in the report are given in these folders inside the experiments folder:
+continuous_chain_finalized_small_pos_big_end_lenline1_sparsity_0.05
+continuous_chain_finalized_small_pos_big_end_lenline1_sparsity_1.0
+continuous_chain_finalized_small_pos_big_end_lenline3_sparsity_0.1
+continuous_chain_finalized_small_pos_big_end_lenline3_sparsity_0.9
+
 ## Running on Compute Canada
 
 ### First Time Setup
-# TODO: I don't know yet if all of this will work with python 3.9. This is 3.6.
 
 ```
 module --force purge
@@ -68,5 +73,15 @@ export XLA_FLAGS=--xla_gpu_cuda_data_dir=$CUDA_PATH
 python scripts/slurm.py <env_name> ./clusters/beluga.json src/main.py ./ <num_runs> <json_experiment_file1> <json_experiment_file2>
 ```
 
+### Plotting
+To plot data after it is generated, use:
+```
+python learning_curve_from_runs.py <number_of_runs_to_plot> ./ right_action_proportion.npy <path/to/experiment_file1.json> python learning_curve_from_runs.py <number_of_runs_to_plot> ./ right_action_proportion.npy <path/to/experiment_file2.json>
+
+```
+You can add an arbitrary number of json files to plot their experiments.
+
 # Citations:
 This codebase is built with a customization of the rl-control-template repo by Andy Patterson and the forked repo by Kirby Banman.
+The agents are based on code from "Privacy-preserving Q-Learning with Functional Noise in Continuous State Spaces"
+ by Wang and Hegde (2019): https://arxiv.org/abs/1901.10634

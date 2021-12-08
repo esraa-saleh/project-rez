@@ -1,4 +1,5 @@
 from collections import namedtuple
+import random
 
 '''
 This code is a modified version of Wang & Hegde [2019] and the PyTorch DQN tutorial found at:
@@ -24,7 +25,7 @@ class ReplayMemory(object):
 
     #samples from the memory using the set seed
     def sample(self, batch_size):
-        return random.sample(self.memory, size=batch_size)
+        return random.sample(self.memory, k=batch_size)
 
     def __len__(self):
         return len(self.memory)

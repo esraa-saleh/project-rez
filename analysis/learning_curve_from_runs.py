@@ -64,12 +64,17 @@ def createPlottingData(expPaths, numRuns, resultsFileName, curveGranularity= "ep
             perm = exp.getPermutation(perm_num)['metaParameters']
             runsDirPath = "results/" + expDir + "/" + exp.agent + "/" + hyphenatedStringify(perm)
             mean, stderr = averagedResultsFromFilePathsForRuns(numRuns, runsDirPath, resultsFileName, bin_size=1)
+            # mean = mean[:1000]
+            # stderr = stderr[:1000]
+            # expectedCurveLen = 1000
+            # # for quick curve cut ^
+
+
             if (mean.shape[0] < expectedCurveLen):  # this is a diverging run
                 aucOther = float('inf')
             else:
                 aucOther = simps(mean, dx=1)
-
-            if aucOther < bestAUC:
+            if aucOther <= bestAUC:
                 bestAUC = aucOther
                 bestCurve = (mean, stderr)
                 bestParams = perm
@@ -81,7 +86,7 @@ def confidenceInterval(mean, stderr):
 
 def plotData(dataList):
     alpha =0.4
-    alphaMain = 1
+    alphaMain = 0.7
 
     f, ax = plt.subplots(1)
     for data in dataList:
@@ -94,7 +99,9 @@ def plotData(dataList):
         ax.legend()
         print("plotted:", data.exp.agent, ", AUC: ", data.auc)
         print("hyperparameters:", data.bestparams)
-    plt.ylim([0,50])
+    # plt.ylim([0,1])
+    plt.ylabel("Number of right actions / total number of actions ")
+    plt.xlabel("Episode")
     plt.show()
 
 
